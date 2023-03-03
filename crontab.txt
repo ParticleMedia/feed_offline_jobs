@@ -1,0 +1,28 @@
+
+#############分类高互动DOC挖掘
+30 * * * * cd /home/services/feed_offline_jobs/tab_top_docs && nohup python src/nonLocalEngageDataMining.py > logs/engage_nonlocal.log &
+35 * * * * cd /home/services/feed_offline_jobs/tab_top_docs && nohup python src/localEngageDataMining.py > logs/engage_local.log &
+#############兴趣Tab指标监控任务
+8 * * * * cd /home/services/feed_offline_jobs/tab_top_docs && nohup python src/TabMetricCalculateDaily.py > logs/tab_metric.log &
+#############Top Tab Doc挖掘
+50 0 * * * cd /home/services/feed_offline_jobs/tab_top_docs && nohup python src/hotTabDataMining.py > logs/hot_tab.log` &
+
+
+######### 不再使用的任务 #########
+
+#############分类高互动DOC挖掘
+#40 * * * * nohup `cd /home/services/gongchen/hera/src/ && python /home/services/gongchen/hera/src/localHotDocDataMining.py > localhot.log` &
+#31 * * * * nohup python /home/services/gongchen/hera/src/globalNonLocalHotDocDataMining.py > global.log &
+#############兴趣Tab指标监控任务
+#0 0 * * * nohup `cd /home/services/gongchen && python /home/services/gongchen/scheduleCleanTask.py > clean.log` &
+############bulletin长时间周期账号ctr计算
+#20 0,3,6,9,12,15,18,21 * * * nohup `cd /home/services/gongchen && python /home/services/gongchen/hera/src/bulletinAuthorCtr7d.py > bulletin7d.log` &
+#25 1,7,13,19 * * * nohup `cd /home/services/gongchen && python /home/services/gongchen/hera/src/bulletinAuthorCtr30d.py > bulletin30d.log` &
+#45 */2 * * * nohup python /home/services/gongchen/hera/src/newUserCatTransformProb.py > cat10day.log &
+#9 * * * * find /data/push_model_data/ -mtime +3 | xargs rm -rf
+#9 * * * * find /data/push_model_data_12h/ -mtime +7 | xargs rm -rf
+#0 2 * * * nohup `cd /data/lgbPipeline/bin && bash /data/lgbPipeline/bin/start.sh lgbv6` &
+#0 4 * * * nohup `cd /data/lgbPipeline/bin && bash /data/lgbPipeline/bin/start.sh lgbv7android` &
+#*/5 * * * * /data/feature-dump/push-online-ctr/output/bin/din-feature-dumper --output-path /data/feature-dump/din --conf=/data/feature-dump/push-online-ctr/output/conf/push-online-ctr.yaml --dump_hourly_data --log_dir /data/feature-dump/push-online-ctr/output/log/  --keep_old_file_hours 240 --use_long_term_click
+#*/5 * * * * bash -c 'exec {id}<>/mnt/models/push-s3-lock/push-data/LOCK && flock -xn ${id} && /data/feature-dump/push-online-ctr-s3/output/bin/din-feature-dumper --output-path /push-data --conf=/data/feature-dump/push-online-ctr/output/conf/push-online-ctr.yaml --dump_hourly_data --log_dir /data/feature-dump/push-online-ctr/output/log/ --dump_to_s3'
+
