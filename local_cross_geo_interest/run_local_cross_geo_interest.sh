@@ -1,5 +1,6 @@
 # !/bin/bash
 set -x
+set -e
 
 ##### runtime conf
 HIVE_BIN="beeline -u jdbc:hive2://receng.emr.nb.com:10000/default -n hadoop"
@@ -151,7 +152,7 @@ LIMIT 100000
 
     echo "process_to_kv_res"
     ${PYTHON_BIN} ./process_to_kv_res.py \
-        --input ${merged_file}
+        --input ${merged_file} \
         --output ${kv_file}
 
     echo "start write to redis"

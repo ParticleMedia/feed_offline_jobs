@@ -1,5 +1,6 @@
 # !/bin/bash
 set -x
+set -e
 
 ##### runtime conf
 HIVE_BIN="beeline -u jdbc:hive2://receng.emr.nb.com:10000/default -n hadoop"
@@ -22,7 +23,7 @@ DOC_DATE_DIFF=1
 DOC_HOUR_DIFF=6
 DOC_SDATE=`date +"%Y-%m-%d" -d "-${DOC_DATE_DIFF} days"`
 DOC_SHOUR=`date +"%Y-%m-%d %H:00:00" -d "-${DOC_HOUR_DIFF} hours"`
-MAX_DOC_IN_GEO=20
+MAX_DOC_IN_GEO=20   # 单个key保存的结果数
 
 CLEAR_DAY=30
 MIN_RESULT_NUM=100
@@ -34,24 +35,34 @@ function get_docs() {
     local hive_sql="
 WITH geo_doc AS (
   SELECT
-    concat(exid.type, '@', exid.pid) as type_pid
+    concat(exid.type, '@', exid.pid) as type_pid,
     doc.doc_id,
-    doc.publish_time,
-    row_number() over(PARTITION BY type_pid ORDER BY doc.publish_time DESC) rk
+    doc.publish_time
   FROM dim.document_parquet doc
   LATERAL VIEW explode(geotag) idtable as exid
-  LATERAL VIEW explode(text_category.first_cat) tmpTable AS first_cat, first_cat_score
   WHERE doc.pdate >= '${DOC_SDATE}'
     AND doc.publish_time >= '${DOC_SHOUR}'
 )
+
+, order_doc AS (
+  SELECT
+    type_pid,
+    doc_id,
+    publish_time,
+    row_number() over(PARTITION BY type_pid ORDER BY publish_time DESC) rk
+  FROM geo_doc
+)
+
 
 insert overwrite directory '${hdfs_cjv_path}' row format delimited fields terminated by '\t'
 
 SELECT
   type_pid,
   concat_ws(',', collect_set(doc_id)) as docs
-FROM geo_doc
+FROM order_doc
 WHERE rk < ${MAX_DOC_IN_GEO}
+  AND type_pid IS NOT NULL
+GROUP BY type_pid
     "
 
     local sql_file=${LOCAL_LOG}"/${TIME_TAG}.sql"

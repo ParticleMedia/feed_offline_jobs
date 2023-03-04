@@ -1,5 +1,6 @@
 # !/bin/bash
 set -x
+set -e
 
 ##### runtime conf
 HIVE_BIN="beeline -u jdbc:hive2://receng.emr.nb.com:10000/default -n hadoop"
@@ -24,6 +25,7 @@ CJV_SDATE=`date +%Y-%m-%d -d "-${CJV_DATE_DIFF} days"`
 DOC_SDATE=`date +%Y-%m-%d -d "-${DOC_DATE_DIFF} days"`
 MIN_CTR=0.07
 MIN_CHECK=1000
+MAX_DOC_IN_GEO=100   # 单个key保存的结果数
 
 CLEAR_DAY=30
 MIN_RESULT_NUM=100
@@ -50,7 +52,7 @@ SELECT
 FROM (
     SELECT
       type_pid,
-      doc_id,
+      cjv.doc_id,
 
       round(1.0000 * sum(cjv.clicked) / sum(cjv.checked), 4) as ctr,
       sum(cjv.checked) as check,
@@ -63,7 +65,8 @@ FROM (
       AND cjv.channel_name in ('foryou', 'local')
       AND (cjv.nr_condition rlike 'local')
       AND cjv.checked = 1
-    GROUP BY type_pid,doc_id
+      AND type_pid IS NOT NULL
+    GROUP BY type_pid, cjv.doc_id
 ) t
 WHERE t.check >= ${MIN_CHECK}
   AND t.ctr >= ${MIN_CTR}
@@ -96,8 +99,9 @@ LIMIT 100000
 
     echo "process_to_kv_res"
     ${PYTHON_BIN} ./process_to_kv_res.py \
-        --input ${merged_file}
-        --output ${kv_file}
+        --input ${merged_file} \
+        --output ${kv_file} \
+        --max_size_in_key ${MAX_DOC_IN_GEO}
 
     echo "start write to redis"
     ${PYTHON_BIN} ./write_redis.py \
