@@ -19,6 +19,7 @@ def main():
         read_cnt = 0
         for line in fr:
             ws = line.strip().split("\t")
+            read_cnt += 1
             if len(ws) != 13:
                 continue
             zip = ws[0]
@@ -30,7 +31,7 @@ def main():
         logging.info(f"read={read_cnt} write={write_cnt}")
 
         for key in data:
-            fw.write(f"{key}\t{pid}\n")
+            fw.write(f"{key}\t{data[key]}\n")
 
 
 if __name__ == '__main__':
