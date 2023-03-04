@@ -16,7 +16,7 @@ LOCAL_DATA="/data/tangyuyang/${TASK_NAME}/data"
 LOCAL_LOG="/data/tangyuyang/${TASK_NAME}/log"
 
 # redis
-REDIS_PREFIX="local_geo_new@"
+REDIS_PREFIX="local_geo_new"
 REDIS_TTL_SEC=86400
 
 # sql
