@@ -1,4 +1,9 @@
 
+############# local cross geo interest召回
+30 */6 * * * cd /home/services/feed_offline_jobs/local_cross_geo_interest && nohup bash run_local_cross_geo_interest.sh > /home/services/feed_offline_jobs/local_cross_geo_interest/nohup.out
+15 */1 * * * cd /home/services/feed_offline_jobs/local_geo_new_docs && nohup bash run_local_geo_new_docs.sh.sh > /home/services/feed_offline_jobs/local_geo_new_docs/nohup.out
+15 */1 * * * cd /home/services/feed_offline_jobs/local_geo_top_docs && nohup bash run_local_geo_top_docs.sh.sh > /home/services/feed_offline_jobs/local_geo_top_docs/nohup.out
+
 #############分类高互动DOC挖掘
 30 * * * * cd /home/services/feed_offline_jobs/tab_top_docs && nohup python src/nonLocalEngageDataMining.py > logs/engage_nonlocal.log &
 35 * * * * cd /home/services/feed_offline_jobs/tab_top_docs && nohup python src/localEngageDataMining.py > logs/engage_local.log &

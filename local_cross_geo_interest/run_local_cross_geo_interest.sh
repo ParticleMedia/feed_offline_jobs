@@ -1,6 +1,7 @@
 # !/bin/bash
 set -x
 set -e
+set -u
 
 ##### runtime conf
 HIVE_BIN="beeline -u jdbc:hive2://receng.emr.nb.com:10000/default -n hadoop"
