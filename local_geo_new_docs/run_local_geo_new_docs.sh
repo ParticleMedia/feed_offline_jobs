@@ -59,7 +59,7 @@ insert overwrite directory '${hdfs_cjv_path}' row format delimited fields termin
 
 SELECT
   type_pid,
-  concat_ws(',', collect_set(doc_id)) as docs
+  concat_ws('#', collect_set(doc_id)) as docs
 FROM order_doc
 WHERE rk < ${MAX_DOC_IN_GEO}
   AND type_pid IS NOT NULL
