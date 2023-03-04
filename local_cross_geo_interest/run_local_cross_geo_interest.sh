@@ -149,6 +149,7 @@ LIMIT 100000
         exit 1
     fi
 
+    echo "process_to_kv_res"
     ${PYTHON_BIN} ./process_to_kv_res.py \
         --input ${merged_file}
         --output ${kv_file}
