@@ -32,6 +32,7 @@ MIN_RESULT_NUM=100
 function get_docs() {
     local hdfs_cjv_path=${HDFS_PATH}"/data_${TIME_TAG}"
     local merged_file=${LOCAL_DATA}/${TIME_TAG}_data
+    local kv_file=${LOCAL_DATA}/${TIME_TAG}_kv
     local hive_sql="
 WITH geo_doc AS (
   SELECT
@@ -93,9 +94,14 @@ LIMIT 100000
         exit 1
     fi
 
+    echo "process_to_kv_res"
+    ${PYTHON_BIN} ./process_to_kv_res.py \
+        --input ${merged_file}
+        --output ${kv_file}
+
     echo "start write to redis"
     ${PYTHON_BIN} ./write_redis.py \
-        --input ${merged_file} \
+        --input ${kv_file} \
         --prefix ${REDIS_PREFIX} \
         --ttl ${REDIS_TTL_SEC}
     return $?
