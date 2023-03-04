@@ -1,4 +1,7 @@
+
+import argparse
 import collections
+import logging
 
 logging.basicConfig(
     format='%(asctime)s : %(levelname)s : [WriteRedis] %(message)s',
@@ -12,7 +15,8 @@ def main():
     args = arg_parser.parse_args()
 
     data = collections.defaultdict(list)
-    with open(args.input, 'r') as fr:
+    with open(args.input, 'r') as fr, open(args.output, 'w') as fw:
+        read_cnt = 0
         for line in fr:
             ws = line.strip().split("\t")
             if len(ws) != 13:
@@ -20,11 +24,13 @@ def main():
             zip = ws[0]
             cate = ws[1]
             pid = ws[2]
-            ctr = float(ws[3])
+            key = zip + '@' + cate
+            data[key].append(pid)
+        write_cnt = len(data)
+        logging.info(f"read={read_cnt} write={write_cnt}")
 
-            key = ge
-
-    pass
+        for key in data:
+            fw.write(f"{key}\t{pid}\n")
 
 
 if __name__ == '__main__':
