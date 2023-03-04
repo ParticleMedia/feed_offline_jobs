@@ -4,19 +4,18 @@ set -x
 ##### runtime conf
 HIVE_BIN="beeline -u jdbc:hive2://receng.emr.nb.com:10000/default -n hadoop"
 PYTHON_BIN="/home/services/miniconda3/bin/python3"
-TODAY=`date +%Y-%m-%d`
-HOUR=`date +%H`
 TIME_TAG=`date +%Y%m%d%H`
 
 ##### task conf
 TASK_NAME="local_cross_geo_interest"
 
-HDFS_PATH="s3a://pm-hdfs2/user/tangyuyang/local_cross_geo_interest"
-LOCAL_DATA="/data/tangyuyang/local_cross_geo_interest/data"
-LOCAL_LOG="/data/tangyuyang/local_cross_geo_interest/log"
+HDFS_PATH="s3a://pm-hdfs2/user/tangyuyang/${TASK_NAME}"
+LOCAL_DATA="/data/tangyuyang/${TASK_NAME}/data"
+LOCAL_LOG="/data/tangyuyang/${TASK_NAME}/log"
 
-CLEAR_DAY=30
-MIN_RESULT_NUM=100
+# redis
+REDIS_PREFIX="local_geo_cate@"
+REDIS_TTL_SEC=86400
 
 # sql
 CJV_DATE_DIFF=3
@@ -28,14 +27,14 @@ MIN_ZIP_CATE_GEO_USER=100
 MIN_CTR_DIFF=0.02
 MIN_CHECK=100
 
-# redis
-REDIS_PREFIX="local_geo_cate@"
-REDIS_TTL_SEC=86400
+CLEAR_DAY=30
+MIN_RESULT_NUM=100
 
 
 function get_docs() {
     local hdfs_cjv_path=${HDFS_PATH}"/data_${TIME_TAG}"
-    local merged_file=${LOCAL_DATA}/${TIME_TAG}_data
+    local merged_file=${LOCAL_DATA}/${TIME_TAG}_merged
+    local kv_file=${LOCAL_DATA}/${TIME_TAG}_kv
     local hive_sql="
 WITH cate_geo_doc AS (
   SELECT
@@ -150,9 +149,13 @@ LIMIT 100000
         exit 1
     fi
 
+    ${PYTHON_BIN} ./process_to_kv_res.py \
+        --input ${merged_file}
+        --output ${kv_file}
+
     echo "start write to redis"
     ${PYTHON_BIN} ./write_redis.py \
-        --input ${merged_file} \
+        --input ${kv_file} \
         --prefix ${REDIS_PREFIX} \
         --ttl ${REDIS_TTL_SEC}
     return $?
@@ -161,13 +164,10 @@ LIMIT 100000
 function clear_old_data() {
     # remove out-of-date data
     echo "clear"
-#    find /data/qihengda/local_supplement/data/ -mtime +${CLEAR_DAY} -name 'docs*' -exec rm -rf {} \;
-#    find /data/qihengda/local_supplement/ -mtime +${CLEAR_DAY} -name 'sql.*' -exec rm -rf {} \;
-
-    CJV_OLD_SDATE=`date +%Y-%m-%d -d "-${CJV_DATE_DIFF} days"`
+    CJV_OLD_SDATE=`date +%Y-%m-%d -d "-${CLEAR_DAY} days"`
 
     rm -rf ${LOCAL_DATA}"/${CJV_OLD_SDATE}*"
-    rm -rf ${LOCAL_DATA}"/*.crc"
+    rm -rf ${LOCAL_DATA}"/.*.crc"
     rm -rf ${LOCAL_LOG}"/${CJV_OLD_SDATE}*"
 }
 
