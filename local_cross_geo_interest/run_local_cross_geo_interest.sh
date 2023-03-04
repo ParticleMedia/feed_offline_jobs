@@ -1,5 +1,5 @@
 # !/bin/bash
-
+set -x
 
 ##### runtime conf
 HIVE_BIN="beeline -u jdbc:hive2://receng.emr.nb.com:10000/default -n hadoop"
@@ -19,13 +19,13 @@ CLEAR_DAY=30
 MIN_RESULT_NUM=100
 
 # sql
-CJV_DATE_DIFF=2
-DOC_DATE_DIFF=2
+CJV_DATE_DIFF=3
+DOC_DATE_DIFF=3
 CJV_SDATE=`date +%Y-%m-%d -d "-${CJV_DATE_DIFF} days"`
 DOC_SDATE=`date +%Y-%m-%d -d "-${DOC_DATE_DIFF} days"`
 MIN_ZIP_CATE_USER=1000
 MIN_ZIP_CATE_GEO_USER=100
-MIN_CTR_DIFF=0.03
+MIN_CTR_DIFF=0.02
 MIN_CHECK=100
 
 # redis
@@ -62,7 +62,7 @@ WITH cate_geo_doc AS (
     nr_zip,
     first_cat,
 
-    1.0000 * sum(cjv.clicked) / sum(cjv.checked) as ctr,
+    round(1.0000 * sum(cjv.clicked) / sum(cjv.checked), 4) as ctr,
     sum(cjv.checked) as check,
     sum(cjv.clicked) as click,
     count(distinct cjv.doc_id) as docs,
@@ -78,6 +78,8 @@ WITH cate_geo_doc AS (
     AND cjv.nr_zip IS NOT NULL
   GROUP BY nr_zip,first_cat
 )
+
+insert overwrite directory '${hdfs_cjv_path}' row format delimited fields terminated by '\t'
 
 SELECT
   t.nr_zip,
@@ -100,7 +102,7 @@ FROM (
       first_cat,
       type_pid,
 
-      1.0000 * sum(cjv.clicked) / sum(cjv.checked) as ctr,
+      round(1.0000 * sum(cjv.clicked) / sum(cjv.checked), 4) as ctr,
       sum(cjv.checked) as check,
       sum(cjv.clicked) as click,
       count(distinct cjv.doc_id) as docs,
@@ -142,7 +144,8 @@ LIMIT 100000
     hadoop fs -getmerge ${hdfs_cjv_path}/* ${merged_file}
 
     local res_cnt=`cat ${merged_file} | wc -l`
-    if [ res_cnt -lt ${MIN_RESULT_NUM} ]; then
+    echo "merged_file=${merged_file} result_cnt=${res_cnt}"
+    if [ $res_cnt -lt ${MIN_RESULT_NUM} ]; then
         echo "result count is less than ${MIN_RESULT_NUM}, please check"
         exit 1
     fi
@@ -161,10 +164,11 @@ function clear_old_data() {
 #    find /data/qihengda/local_supplement/data/ -mtime +${CLEAR_DAY} -name 'docs*' -exec rm -rf {} \;
 #    find /data/qihengda/local_supplement/ -mtime +${CLEAR_DAY} -name 'sql.*' -exec rm -rf {} \;
 
-    CJV_SDATE=`date +%Y-%m-%d -d "-${CJV_DATE_DIFF} days"`
+    CJV_OLD_SDATE=`date +%Y-%m-%d -d "-${CJV_DATE_DIFF} days"`
 
-    rm -rf ${LOCAL_DATA}"/"
+    rm -rf ${LOCAL_DATA}"/${CJV_OLD_SDATE}*"
     rm -rf ${LOCAL_DATA}"/*.crc"
+    rm -rf ${LOCAL_LOG}"/${CJV_OLD_SDATE}*"
 }
 
 
@@ -172,6 +176,6 @@ mkdir -p ${LOCAL_DATA}
 mkdir -p ${LOCAL_LOG}
 
 log_file=${LOCAL_LOG}"/${TIME_TAG}.log"
-get_docs > ${log_file}
+get_docs | tee -a ${log_file}
 
 clear_old_data
