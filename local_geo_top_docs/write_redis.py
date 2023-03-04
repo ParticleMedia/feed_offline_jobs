@@ -22,11 +22,16 @@ def main():
 
     result = {}
     with open(args.input, 'r') as f:
+        read_cnt, write_cnt = 0, 0
         for idx, line in enumerate(f, start=1):
             ws = line.strip().split('\t')
+            read_cnt += 1
             if len(ws) == 2:
                 k, v = ws
                 rc.setex(prefix + '@' + k, args.ttl, v)
+                write_cnt += 1
+                if write_cnt % 100 == 0:
+                    logging.info(f"write_to_redis sample: key={prefix + '@' + k}, val={v}")
         pipe.execute()
 
 logging.info('Finish.')
