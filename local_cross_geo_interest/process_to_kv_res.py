@@ -31,7 +31,7 @@ def main():
         logging.info(f"read={read_cnt} write={write_cnt}")
 
         for key in data:
-            fw.write(f"{key}\t{data[key]}\n")
+            fw.write(f"{key}\t{'#'.join(data[key])}\n")
 
 
 if __name__ == '__main__':

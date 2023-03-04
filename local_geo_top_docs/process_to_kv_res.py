@@ -40,7 +40,7 @@ def main():
                 if cur_size > max_size:
                     max_size = cur_size
                     max_key = key
-                fw.write(f"{key}\t{cur_size}\n")
+                fw.write(f"{key}\t{'#'.join(data[key])}\n")
             avg_size = tot_size / float(write_cnt)
             logging.info(f"saved: write_key={write_cnt} total_value_size={tot_size} max_size={max_size} max_key={max_key} avg_size={avg_size:.4f}")
 
