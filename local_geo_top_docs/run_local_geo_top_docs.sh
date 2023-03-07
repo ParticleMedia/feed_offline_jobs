@@ -24,8 +24,7 @@ CJV_DATE_DIFF=3
 DOC_DATE_DIFF=3
 CJV_SDATE=`date +%Y-%m-%d -d "-${CJV_DATE_DIFF} days"`
 DOC_SDATE=`date +%Y-%m-%d -d "-${DOC_DATE_DIFF} days"`
-MIN_CTR=0.07
-MIN_CHECK=1000
+MIN_CHECK=100
 MAX_DOC_IN_GEO=100   # 单个key保存的结果数
 
 CLEAR_DAY=30
@@ -52,6 +51,25 @@ WITH geo_doc AS (
     AND exid.pid IS NOT NULL
 )
 
+, cate_geo_cjv AS (
+  SELECT
+      cate_pid,
+
+      round(1.0000 * sum(cjv.clicked) / sum(cjv.checked), 4) as ctr,
+      sum(cjv.checked) as check,
+      sum(cjv.clicked) as click
+    FROM warehouse.online_cjv_hourly cjv
+    LEFT JOIN geo_doc ON geo_doc.doc_id = cjv.doc_id
+    WHERE
+      cjv.joined = 1
+      AND cjv.pdate >= '${CJV_SDATE}'
+      AND cjv.channel_name in ('foryou', 'local')
+      AND (cjv.nr_condition rlike 'local')
+      AND cjv.checked = 1
+      AND cate_pid IS NOT NULL
+    GROUP BY cate_pid
+)
+
 insert overwrite directory '${hdfs_cjv_path}' row format delimited fields terminated by '\t'
 
 SELECT
@@ -75,8 +93,9 @@ FROM (
       AND cate_pid IS NOT NULL
     GROUP BY cate_pid, cjv.doc_id
 ) t
+LEFT JOIN cate_geo_cjv ON cate_geo_cjv.cate_pid = t.cate_pid
 WHERE t.check >= ${MIN_CHECK}
-  AND t.ctr >= ${MIN_CTR}
+  AND t.ctr >= cate_geo_cjv.ctr
 ORDER BY t.cate_pid, t.ctr DESC
 LIMIT 1000000
     "
