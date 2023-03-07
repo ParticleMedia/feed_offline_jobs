@@ -21,7 +21,7 @@ def main():
         for line in fr:
             ws = line.strip().split("\t")
             read_cnt += 1
-            if len(ws) != 5:
+            if len(ws) != 9:
                 continue
             pid = ws[0]
             docid = ws[1]
