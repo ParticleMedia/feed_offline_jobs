@@ -67,6 +67,7 @@ SELECT
   concat_ws('#', collect_set(doc_id)) as docs
 FROM order_doc
 WHERE rk < ${MAX_DOC_IN_GEO}
+  AND cate_pid IS NOT NULL
 GROUP BY cate_pid
     "
 

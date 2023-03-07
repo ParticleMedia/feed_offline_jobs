@@ -72,6 +72,7 @@ FROM (
       AND cjv.channel_name in ('foryou', 'local')
       AND (cjv.nr_condition rlike 'local')
       AND cjv.checked = 1
+      AND cate_pid IS NOT NULL
     GROUP BY cate_pid, cjv.doc_id
 ) t
 WHERE t.check >= ${MIN_CHECK}
