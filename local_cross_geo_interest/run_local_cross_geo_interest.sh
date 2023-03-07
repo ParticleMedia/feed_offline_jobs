@@ -77,6 +77,7 @@ WITH cate_geo_doc AS (
     AND (cjv.nr_condition rlike 'local')
     AND cjv.checked = 1
     AND cjv.nr_zip IS NOT NULL
+    AND cjv.nr_zip != '00000'
   GROUP BY nr_zip,first_cat
 )
 
