@@ -39,11 +39,17 @@ function get_docs() {
     local hive_sql="
 WITH geo_doc AS (
   SELECT
+    first_cat,
+    concat(exid.type, '@', exid.pid) as type_pid,
+    concat(first_cat, '@', concat(exid.type, '@', exid.pid)) as cate_pid,
     doc.doc_id,
-    concat(exid.type, '@', exid.pid) as type_pid
+    doc.publish_time
   FROM dim.document_parquet doc
   LATERAL VIEW explode(geotag) idtable as exid
+  LATERAL VIEW explode(text_category.first_cat) tmpTable AS first_cat, first_cat_score
   WHERE doc.pdate >= '${DOC_SDATE}'
+    AND first_cat IS NOT NULL
+    AND exid.pid IS NOT NULL
 )
 
 insert overwrite directory '${hdfs_cjv_path}' row format delimited fields terminated by '\t'
@@ -52,7 +58,7 @@ SELECT
   *
 FROM (
     SELECT
-      type_pid,
+      cate_pid,
       cjv.doc_id,
 
       round(1.0000 * sum(cjv.clicked) / sum(cjv.checked), 4) as ctr,
@@ -66,13 +72,12 @@ FROM (
       AND cjv.channel_name in ('foryou', 'local')
       AND (cjv.nr_condition rlike 'local')
       AND cjv.checked = 1
-      AND type_pid IS NOT NULL
-    GROUP BY type_pid, cjv.doc_id
+    GROUP BY cate_pid, cjv.doc_id
 ) t
 WHERE t.check >= ${MIN_CHECK}
   AND t.ctr >= ${MIN_CTR}
-ORDER BY t.type_pid, t.ctr DESC
-LIMIT 100000
+ORDER BY t.cate_pid, t.ctr DESC
+LIMIT 1000000
     "
 
     local sql_file=${LOCAL_LOG}"/${TIME_TAG}.sql"
