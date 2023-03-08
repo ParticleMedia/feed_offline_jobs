@@ -25,8 +25,6 @@ DOC_DATE_DIFF=3
 CJV_SDATE=`date +%Y-%m-%d -d "-${CJV_DATE_DIFF} days"`
 DOC_SDATE=`date +%Y-%m-%d -d "-${DOC_DATE_DIFF} days"`
 MIN_ZIP_CATE_USER=1000
-MIN_ZIP_CATE_GEO_USER=100
-MIN_CTR_DIFF=0.00
 MIN_CHECK=100
 
 CLEAR_DAY=30
@@ -122,8 +120,7 @@ FROM (
 ) t
 LEFT JOIN zip_cate_cjv ON t.nr_zip = zip_cate_cjv.nr_zip AND t.first_cat = zip_cate_cjv.first_cat
 WHERE zip_cate_cjv.users >= ${MIN_ZIP_CATE_USER}
-  AND t.users >= ${MIN_ZIP_CATE_GEO_USER}
-  AND t.ctr > zip_cate_cjv.ctr + ${MIN_CTR_DIFF}
+  AND t.ctr > zip_cate_cjv.ctr
   AND t.check >= ${MIN_CHECK}
 ORDER BY t.nr_zip,t.first_cat,t.ctr DESC
 LIMIT 1000000

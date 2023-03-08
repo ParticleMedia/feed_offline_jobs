@@ -25,7 +25,7 @@ DOC_DATE_DIFF=3
 CJV_SDATE=`date +%Y-%m-%d -d "-${CJV_DATE_DIFF} days"`
 DOC_SDATE=`date +%Y-%m-%d -d "-${DOC_DATE_DIFF} days"`
 MIN_CHECK=100
-MAX_DOC_IN_GEO=100   # 单个key保存的结果数
+MAX_DOC_IN_GEO=200   # 单个key保存的结果数
 
 CLEAR_DAY=30
 MIN_RESULT_NUM=100
