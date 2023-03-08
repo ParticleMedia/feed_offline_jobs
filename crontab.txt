@@ -5,12 +5,12 @@
 15 */1 * * * cd /home/services/feed_offline_jobs/local_geo_top_docs && bash run_local_geo_top_docs.sh.sh > /home/services/feed_offline_jobs/local_geo_top_docs/nohup.out 2>&1 &
 
 #############分类高互动DOC挖掘
-30 * * * * cd /home/services/feed_offline_jobs/tab_top_docs && nohup python src/nonLocalEngageDataMining.py > logs/engage_nonlocal.log &
-35 * * * * cd /home/services/feed_offline_jobs/tab_top_docs && nohup python src/localEngageDataMining.py > logs/engage_local.log &
+30 * * * * bash /home/services/feed_offline_jobs/tab_top_docs/run_tab_jobs.sh src/nonLocalEngageDataMining.py logs/engage_nonlocal.log &
+35 * * * * bash /home/services/feed_offline_jobs/tab_top_docs/run_tab_jobs.sh src/localEngageDataMining.py logs/engage_local.log &
 #############兴趣Tab指标监控任务
-8 * * * * cd /home/services/feed_offline_jobs/tab_top_docs && nohup python src/TabMetricCalculateDaily.py > logs/tab_metric.log &
+8 * * * * bash /home/services/feed_offline_jobs/tab_top_docs/run_tab_jobs.sh src/TabMetricCalculateDaily.py logs/tab_metric.log &
 #############Top Tab Doc挖掘
-50 0 * * * cd /home/services/feed_offline_jobs/tab_top_docs && nohup python src/hotTabDataMining.py > logs/hot_tab.log` &
+50 0 * * * bash /home/services/feed_offline_jobs/tab_top_docs/run_tab_jobs.sh src/hotTabDataMining.py logs/hot_tab.log &
 
 
 ######### 不再使用的任务 #########
