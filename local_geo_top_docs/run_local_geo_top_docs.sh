@@ -49,6 +49,7 @@ WITH geo_doc AS (
   WHERE doc.pdate >= '${DOC_SDATE}'
     AND first_cat IS NOT NULL
     AND exid.pid IS NOT NULL
+    AND exid.type != 'state'
 )
 
 , cate_geo_cjv AS (

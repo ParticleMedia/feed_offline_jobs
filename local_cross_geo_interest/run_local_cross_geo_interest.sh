@@ -45,6 +45,7 @@ WITH cate_geo_doc AS (
   LATERAL VIEW explode(geotag) idtable as exid
   LATERAL VIEW explode(text_category.first_cat) tmpTable AS first_cat, first_cat_score
   WHERE doc.pdate >= '${DOC_SDATE}'
+    AND exid.type != 'state'
 )
 
 , cate_doc AS (

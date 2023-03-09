@@ -48,6 +48,7 @@ WITH geo_doc AS (
     AND doc.publish_time >= '${DOC_SHOUR}'
     AND first_cat IS NOT NULL
     AND exid.pid IS NOT NULL
+    AND exid.type != 'state'
 )
 
 , order_doc AS (
