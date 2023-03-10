@@ -9,7 +9,7 @@ PYTHON_BIN="/home/services/miniconda3/bin/python3"
 TIME_TAG=`date +%Y%m%d%H`
 
 ##### task conf
-TASK_NAME="local_geo_top_docs"
+TASK_NAME="local_geo_top_docs_channel"
 
 HDFS_PATH="s3a://pm-hdfs2/user/tangyuyang/${TASK_NAME}"
 LOCAL_DATA="/data/tangyuyang/${TASK_NAME}/data"
