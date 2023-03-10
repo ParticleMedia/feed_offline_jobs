@@ -109,7 +109,7 @@ function clear_old_data() {
     CJV_OLD_SDATE=`date +%Y-%m-%d -d "-${CLEAR_DAY} days"`
 
     rm -rf ${LOCAL_DATA}"/${CJV_OLD_SDATE}*"
-    rm -rf ${LOCAL_DATA}"/.*.crc"
+    rm -rf ${LOCAL_DATA}/.*.crc
     rm -rf ${LOCAL_LOG}"/${CJV_OLD_SDATE}*"
 }
 
