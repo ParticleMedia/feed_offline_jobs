@@ -1,6 +1,6 @@
 
 ############# local cross geo interest召回
-30 */6 * * * cd /home/services/feed_offline_jobs/local_cross_geo_interest && bash run_local_cross_geo_interest.sh > /home/services/feed_offline_jobs/local_cross_geo_interest/nohup.out 2>&1 &
+30 */6 * * * cd /home/services/feed_offline_jobs/local_cross_geo_interest && bash run_local_cross_geo.sh > /home/services/feed_offline_jobs/local_cross_geo_interest/nohup.out 2>&1 &
 15 */1 * * * cd /home/services/feed_offline_jobs/local_geo_new_docs && bash run_local_geo_new_docs.sh.sh > /home/services/feed_offline_jobs/local_geo_new_docs/nohup.out 2>&1 &
 15 */1 * * * cd /home/services/feed_offline_jobs/local_geo_top_docs && bash run_local_geo_top_docs.sh.sh > /home/services/feed_offline_jobs/local_geo_top_docs/nohup.out 2>&1 &
 
