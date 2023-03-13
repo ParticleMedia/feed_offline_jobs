@@ -26,7 +26,7 @@ DOC_SDATE=`date +"%Y-%m-%d" -d "-${DOC_DATE_DIFF} days"`
 DOC_SHOUR=`date +"%Y-%m-%d %H:00:00" -d "-${DOC_HOUR_DIFF} hours"`
 MAX_DOC_IN_GEO=20   # 单个key保存的结果数
 
-CLEAR_DAY=30
+CLEAR_DAY=5
 MIN_RESULT_NUM=100
 
 
